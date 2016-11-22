@@ -1,4 +1,4 @@
-LastSessions<|||>1<|||>
+LastSessions<|||>1<|||>Unnamed
 LastActiveSession<|||>1<|||>Unnamed
 ColWidths_connform.ListSessions<|||>1<|||>163,50,50,50,50,50,53
 ColsVisible_connform.ListSessions<|||>1<|||>0
@@ -80,4 +80,3 @@ Servers\Unnamed\ConnectCount<|||>3<|||>6
 Servers\Unnamed\ServerVersion<|||>3<|||>100113
 Servers\Unnamed\LastConnect<|||>1<|||>2016-11-21 13:20:56
 Servers\Unnamed\lastUsedDB<|||>1<|||>javablog
-Servers\Unnamed\RefusedCount<|||>3<|||>2
