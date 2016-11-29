@@ -1,8 +1,8 @@
 package softuniBlog.controller;
 
-import com.sun.javafx.sg.prism.NGShape;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,12 +18,10 @@ import softuniBlog.repository.UserRepository;
 
 @Controller
 public class ArticleController {
-
-    @Autowired
-    private UserRepository userRepository;
-
     @Autowired
     private ArticleRepository articleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/article/create")
     @PreAuthorize("isAuthenticated()")
@@ -36,7 +34,8 @@ public class ArticleController {
     @PostMapping("/article/create")
     @PreAuthorize("isAuthenticated()")
     public String createProcess(ArticleBindingModel articleBindingModel){
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
 
         User userEntity = this.userRepository.findByEmail(user.getUsername());
 
@@ -53,8 +52,18 @@ public class ArticleController {
 
     @GetMapping("/article/{id}")
     public String details(Model model, @PathVariable Integer id){
-        if(!this.articleRepository.exists(id)){
+        if (!this.articleRepository.exists(id)) {
             return "redirect:/";
+        }
+
+        if(!(SecurityContextHolder.getContext().getAuthentication()
+                instanceof AnonymousAuthenticationToken)){
+            UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+
+            User entityUser = this.userRepository.findByEmail(principal.getUsername());
+
+            model.addAttribute("user", entityUser);
         }
 
         Article article = this.articleRepository.findOne(id);
@@ -65,19 +74,23 @@ public class ArticleController {
         return "base-layout";
     }
 
-    @GetMapping("article/edit/{id}")
+    @GetMapping("/article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Integer id, Model model){
         if(!this.articleRepository.exists(id)){
             return "redirect:/";
         }
         Article article = this.articleRepository.findOne(id);
+
+        if(!isUserAuthorOrAdmin(article)){
+            return "redirect:/article/" + id;
+        }
+
         model.addAttribute("view", "article/edit");
         model.addAttribute("article", article);
 
         return "base-layout";
     }
-
 
     @PostMapping("/article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
@@ -87,6 +100,11 @@ public class ArticleController {
         }
 
         Article article = this.articleRepository.findOne(id);
+
+        if(!isUserAuthorOrAdmin(article)){
+            return "redirect:/article/" + id;
+        }
+
         article.setContent(articleBindingModel.getContent());
         article.setTitle(articleBindingModel.getTitle());
 
@@ -104,6 +122,10 @@ public class ArticleController {
 
         Article article = this.articleRepository.findOne(id);
 
+        if(!isUserAuthorOrAdmin(article)){
+            return "redirect:/article/" + id;
+        }
+
         model.addAttribute("article", article);
         model.addAttribute("view", "article/delete");
 
@@ -113,14 +135,27 @@ public class ArticleController {
     @PostMapping("/article/delete/{id}")
     @PreAuthorize("isAuthenticated()")
     public String deleteProcess(@PathVariable Integer id){
-        if(!this.articleRepository.exists(id)){
+        if (!this.articleRepository.exists(id)) {
             return "redirect:/";
         }
 
         Article article = this.articleRepository.findOne(id);
 
+        if(!isUserAuthorOrAdmin(article)){
+            return "redirect:/article/" + id;
+        }
+
         this.articleRepository.delete(article);
 
         return "redirect:/";
+    }
+
+    private boolean isUserAuthorOrAdmin(Article article){
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+
+        User userEntity = this.userRepository.findByEmail(user.getUsername());
+
+        return userEntity.isAdmin() || userEntity.isAuthor(article);
     }
 }

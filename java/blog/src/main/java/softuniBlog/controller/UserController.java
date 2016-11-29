@@ -44,12 +44,6 @@ public class UserController {
             return "redirect:/register";
         }
 
-//       User existingUser = this.userRepository.findByEmail(userBindingModel.getEmail());
-//
-//        if(existingUser==null) {
-//            return "redirect:/register";
-//        }
-
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
         User user = new User(

@@ -1,7 +1,7 @@
 package softuniBlog.entity;
 
-
 import javax.persistence.*;
+
 @Entity
 @Table(name = "articles")
 public class Article {
@@ -13,8 +13,7 @@ public class Article {
 
     private User author;
 
-    public Article() {
-    }
+    public Article() {    }
 
     public Article(String title, String content, User author) {
         this.title = title;
@@ -40,6 +39,7 @@ public class Article {
     public void setTitle(String title) {
         this.title = title;
     }
+
     @Column(columnDefinition = "text", nullable = false)
     public String getContent() {
         return content;
