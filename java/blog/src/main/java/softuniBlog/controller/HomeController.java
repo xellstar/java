@@ -6,7 +6,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import softuniBlog.entity.Article;
+import softuniBlog.entity.Category;
 import softuniBlog.repository.ArticleRepository;
+import softuniBlog.repository.CategoryRepository;
 
 import java.util.List;
 
@@ -14,15 +16,15 @@ import java.util.List;
 public class HomeController {
 
     @Autowired
-    private ArticleRepository articleRepository;
+    private CategoryRepository categoryRepository;
 
     @GetMapping("/")
     public String index(Model model) {
 
-        List<Article> articles = this.articleRepository.findAll();
+        List<Category> categories = this.categoryRepository.findAll();
 
         model.addAttribute("view", "home/index");
-        model.addAttribute("articles", articles);
+        model.addAttribute("categories", categories);
 
         return "base-layout";
     }
